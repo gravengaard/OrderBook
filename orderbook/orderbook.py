@@ -135,7 +135,7 @@ class OrderBook(object):
                 self.bids.insert_order(quote)
                 order_in_book = quote
         elif side == 'ask':
-            while (self.bids and prce < self.bids.max_price() and quantity_to_trade > 0):
+            while (self.bids and price < self.bids.max_price() and quantity_to_trade > 0):
                 best_price_bids = self.bids.max_price_list()
                 quantity_to_trade, new_trades = self.process_order_list('bid', best_price_bids, quantity_to_trade, quote, verbose)
                 trades += new_trades
@@ -160,9 +160,12 @@ class OrderBook(object):
                 self.bids.remove_order_by_id(order_id)
         elif side == 'ask':
             if self.asks.order_exists(order_id):
-                self.bids.remove_order_by_id(order_id)
+                self.asks.remove_order_by_id(order_id)
         else:
-            sys.exit('cancel_order() given neither "bid" nor "ask"')
+            if self.asks.order_exists(order_id):
+                self.asks.remove_order_by_id(order_id)
+            elif self.bids.order_exists(order_id):
+                self.bids.remove_order_by_id(order_id)
 
     def modify_order(self, order_id, order_update, time=None):
         if time:
